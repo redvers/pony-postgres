@@ -1,12 +1,12 @@
 PKG=pg
 BUILD_DIR=build
-PONYC=/usr/local/bin/ponyc
+PONYC=corral run -- ponyc
 PONY_SRC=$(shell find . -name "*.pony")
 BIN_DIR=$(BUILD_DIR)/release
 BIN=$(BIN_DIR)/example
 DEBUG_DIR=$(BUILD_DIR)/debug
 DEBUG=$(DEBUG_DIR)/example
-TEST_SRC=$(PKG)/test
+TEST_SRC=test
 TEST_BIN=$(BUILD_DIR)/test
 BENCH_SRC=$(PKG)/bench
 BENCH_BIN=$(BUILD_DIR)/bench

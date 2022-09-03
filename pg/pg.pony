@@ -3,7 +3,7 @@ pg.pony
 
 Do pg stuff.
 """
-use "options"
+//use "options"
 use "debug"
 
 use "pg/protocol"
@@ -39,48 +39,48 @@ actor Session
     // TODO: we should implement all options of libpq as well :
     // https://www.postgresql.org/docs/current/static/libpq-envars.html
 
-    let user' = try
-      user as String
-    else try
-      EnvVars(env.vars())("PGUSER")
-    else try
-      EnvVars(env.vars())("USER")
-    else
-      ""
-    end end end
+    let user' = "red" //try
+//      user as String
+//    else try
+//      EnvVars(env.vars())("PGUSER")
+//    else try
+//      EnvVars(env.vars())("USER")
+//    else
+//      ""
+//    end end end
 
-    let host' = try
-      host as String
-    else try
-      EnvVars(env.vars())("PGHOST")
-    else
-      "localhost"
-    end end
+    let host' = "localhost" //try
+//      host as String
+//    else try
+//      EnvVars(env.vars())("PGHOST")
+//    else
+//      "localhost"
+//    end end
 
-    let service' = try
-      service as String
-    else try
-      EnvVars(env.vars())("PGPORT")
-    else
-      "5432"
-    end end
+    let service' = "5432" //try
+//      service as String
+//    else try
+//      EnvVars(env.vars())("PGPORT")
+//    else
+//      "5432"
+//    end end
 
-    let database' = try
-      database as String
-    else try
-      EnvVars(env.vars())("PGDATABASE")
-    else
-      user'
-    end end
+    let database' = "red" //try
+//      database as String
+//    else try
+//      EnvVars(env.vars())("PGDATABASE")
+//    else
+//      user'
+//    end end
 
     // Define the password strategy
-    let provider = match password
-      | None => EnvPasswordProvider(env)
-      | let p: PasswordProvider tag => p
-      | let s: String => RawPasswordProvider(s)
-      else
-        RawPasswordProvider("")
-      end
+    let provider = RawPasswordProvider("red") //match password
+//      | None => EnvPasswordProvider(env)
+//      | let p: PasswordProvider tag => p
+//      | let s: String => RawPasswordProvider(s)
+//      else
+//        RawPasswordProvider("")
+//      end
 
     _mgr = ConnectionManager(host', service', user', provider, 
       recover val [("user", user'); ("database", database')] end, env.out)
@@ -89,7 +89,8 @@ actor Session
     _env.out.print(msg)
 
   be connect(f: {(Connection tag)} val) =>
-    try _mgr.connect(_env.root as AmbientAuth, f) end
+    _mgr.connect(_env.root, f)
+//    try _mgr.connect(_env.root, f) end
 
   be execute(query: String,
              handler: RecordCB val,
@@ -97,7 +98,8 @@ actor Session
     let f = recover {(c: Connection)(query, params, handler) =>
         c.execute(query, handler, params)
     } end
-    try _mgr.connect(_env.root as AmbientAuth, consume f) end
+    _mgr.connect(_env.root, consume f)
+//    try _mgr.connect(_env.root, consume f) end
 
   be terminate()=>
     _mgr.terminate()

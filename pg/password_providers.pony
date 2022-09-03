@@ -1,4 +1,4 @@
-use "options"
+//use "options"
 
 interface PasswordProvider
   be apply(f: PassCB val)
@@ -17,9 +17,9 @@ actor EnvPasswordProvider
 
   new create(e: Env) => _env = e
   be chain(p: PasswordProvider tag) => _next = p
-  be apply(f: PassCB val) =>
-    try
-      f(EnvVars(_env.vars())("PGPASSWORD"))
-    else
-      try (_next as PasswordProvider tag)(f) end
-    end
+  be apply(f: PassCB val) => f("red")
+//    try
+//      f(EnvVars(_env.vars())("PGPASSWORD"))
+//    else
+//      try (_next as PasswordProvider tag)(f) end
+//    end

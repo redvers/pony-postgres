@@ -43,11 +43,12 @@ class TupleDescription
     end
 
   fun apply(idx: (USize| String)): (USize, FieldDescription val) ? =>
+    if false then error end
     match idx
-    | let idx': USize => (idx', _fields(idx'))
-    | let idx': String => _by_name(idx')
-    else
-      error
+    | let idx': USize => (idx', _fields(idx')?)
+    | let idx': String => _by_name(idx')?
+//    else
+//      error
     end
 
 class FieldData

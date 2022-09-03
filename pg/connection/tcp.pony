@@ -42,7 +42,7 @@ actor _Connection is BEConnection
              pool: ConnectionManager,
              out': OutStream
              ) =>
-    _conn = TCPConnection(auth, PGNotify(this), host, service)
+    _conn = TCPConnection(TCPConnectAuth(auth), PGNotify(this), host, service)
     _pool = pool
     _params = params
     _current = AuthConversation(_pool, this, _params)
@@ -98,7 +98,7 @@ actor _Connection is BEConnection
 
   be next() =>
     try
-      _current = _convs.shift()
+      _current = _convs.shift()?
       _current(this)
     else
       _current = NullConversation(this)

@@ -45,7 +45,7 @@ class BlogEntryRecordNotify is FetchNotify
   fun ref record(r: Record val) =>
     try
       let e = recover val BlogEntry(
-        r(0) as I32,
+        r(0)? as I32,
         2, 3
         /*r(1) as I32,*/
         /*r(2) as I32*/
@@ -73,7 +73,7 @@ class UserRecordNotify is FetchNotify
     Debug(b.size())
     for r in b.values() do
       try
-        view.user(recover User(r("id") as I32) end)
+        view.user(recover User(r("id")? as I32) end)
       else
         Debug.out("Error")
       end
@@ -81,7 +81,7 @@ class UserRecordNotify is FetchNotify
 
   fun ref record(r: Record val) =>
     try
-      view.user(recover User(r("id") as I32) end)
+      view.user(recover User(r("id")? as I32) end)
     end
 
   fun ref stop() => None
@@ -124,7 +124,7 @@ actor BlogEntriesView
   be render(entries': Array[BlogEntry val] val) =>
     Debug.out("render")
     logger.log("render")
-    try logger.log(entries'.size().string() + " " + entries'(0).string()) end
+    try logger.log(entries'.size().string() + " " + entries'(0)?.string()) end
     /*logger.log(entries'.size().string())*/
     try (_conn as Connection).release() end
 
@@ -164,7 +164,7 @@ class iso HydrateOne[A: Any #share]
 
   fun ref apply(records: Array[Record val] val): A ? =>
     if records.size() != 1 then error end
-    _h(records(0))
+    _h(records(0)?)
 
 
 class SQLPromise[A: Any #share]
@@ -214,7 +214,7 @@ primitive UserManager
   ] end
   fun hydrate(r: Record val): User val=>
     try
-      recover val User(r("id") as I32) end
+      recover val User(r("id")? as I32) end
     else
       recover val User(42) end
     end
@@ -295,12 +295,12 @@ actor Main
 
   be raw_handler(rows: Rows val) =>
     for row in rows.values() do
-      try logger.log((row(0) as I32).string()) end
-      try logger.log((row("foo") as I32).string()) end
+      try logger.log((row(0)? as I32).string()) end
+      try logger.log((row("foo")? as I32).string()) end
     end
 
   be execute_handler(rows: Rows val) =>
     for row in rows.values() do
-      try logger.log((row(0) as I32).string()) end
-      try logger.log((row("foo") as I32).string()) end
+      try logger.log((row(0)? as I32).string()) end
+      try logger.log((row("foo")? as I32).string()) end
     end
