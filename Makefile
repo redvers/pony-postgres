@@ -1,6 +1,6 @@
 PKG=pg
 BUILD_DIR=build
-PONYC=corral run -- ponyc
+PONYC=corral run -- ponyc -d 
 PONY_SRC=$(shell find . -name "*.pony")
 BIN_DIR=$(BUILD_DIR)/release
 BIN=$(BIN_DIR)/example

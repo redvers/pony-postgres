@@ -115,32 +115,31 @@ class PGNotify is TCPConnectionNotify
       return ParsePending
     end
     Debug(String.from_array(recover val [as U8: _ctype] end))
-    let result = ParseCompleteMessage
-//    let result = match _ctype
-//    | '1' => ParseCompleteMessage
-//    | '2' => BindCompleteMessage
-//    | '3' => CloseCompleteMessage
-//    | 'C' => //try
- //       CommandCompleteMessage(parse_single_string())
-//      else
-//        PGParseError("Couldn't parse cmd complete message")
-//      end
-//    | 'D' => parse_data_row()
-//    | 'E' => parse_err_resp()
-//    | 'I' => EmptyQueryResponse
-//    | 'K' => parse_backend_key_data()
-//    | 'R' => parse_auth_resp()
-//    | 'S' => parse_parameter_status()
-//    | 'T' => parse_row_description()
-//    | 'Z' => parse_ready_for_query()
-//    | 's' => PortalSuspendedMessage
-//    else
-//      try r.block(_clen-4) else return PGParseError("") end
- //     let ret = PGParseError("Unknown message ID " + _ctype.string())
-//      _ctype = 0
-//      _clen = 0
- //     ret
-//    end
+    let result = match _ctype
+    | '1' => ParseCompleteMessage
+    | '2' => BindCompleteMessage
+    | '3' => CloseCompleteMessage
+    | 'C' => try
+        CommandCompleteMessage(parse_single_string()?)
+      else
+        PGParseError("Couldn't parse cmd complete message")
+      end
+    | 'D' => parse_data_row()
+    | 'E' => parse_err_resp()
+    | 'I' => EmptyQueryResponse
+    | 'K' => parse_backend_key_data()
+    | 'R' => parse_auth_resp()
+    | 'S' => parse_parameter_status()
+    | 'T' => parse_row_description()
+    | 'Z' => parse_ready_for_query()
+    | 's' => PortalSuspendedMessage
+    else
+      try r.block(_clen-4)? else return PGParseError("") end
+      let ret = PGParseError("Unknown message ID " + _ctype.string())
+      _ctype = 0
+      _clen = 0
+      consume ret
+    end
 
     match result
     | let res: ServerMessage val =>
