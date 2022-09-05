@@ -4,8 +4,8 @@ test_pg.pony
 Test pg stuff.
 """
 
-use "ponytest"
-use "pg"
+use "pony_test"
+use "../pg"
 
 actor Main is TestList
   new create(env: Env) =>

@@ -3,7 +3,7 @@ pg.pony
 
 Do pg stuff.
 """
-use "options"
+use "cli"
 use "debug"
 
 use "pg/protocol"
@@ -42,9 +42,9 @@ actor Session
     let user' = try
       user as String
     else try
-      EnvVars(env.vars())("PGUSER")
+      EnvVars(env.vars)("PGUSER")?
     else try
-      EnvVars(env.vars())("USER")
+      EnvVars(env.vars)("USER")?
     else
       ""
     end end end
@@ -52,7 +52,7 @@ actor Session
     let host' = try
       host as String
     else try
-      EnvVars(env.vars())("PGHOST")
+      EnvVars(env.vars)("PGHOST")?
     else
       "localhost"
     end end
@@ -60,7 +60,7 @@ actor Session
     let service' = try
       service as String
     else try
-      EnvVars(env.vars())("PGPORT")
+      EnvVars(env.vars)("PGPORT")?
     else
       "5432"
     end end
@@ -68,7 +68,7 @@ actor Session
     let database' = try
       database as String
     else try
-      EnvVars(env.vars())("PGDATABASE")
+      EnvVars(env.vars)("PGDATABASE")?
     else
       user'
     end end
@@ -78,8 +78,6 @@ actor Session
       | None => EnvPasswordProvider(env)
       | let p: PasswordProvider tag => p
       | let s: String => RawPasswordProvider(s)
-      else
-        RawPasswordProvider("")
       end
 
     _mgr = ConnectionManager(host', service', user', provider, 
@@ -89,7 +87,8 @@ actor Session
     _env.out.print(msg)
 
   be connect(f: {(Connection tag)} val) =>
-    try _mgr.connect(_env.root as AmbientAuth, f) end
+    _mgr.connect(_env.root, f)
+//    try _mgr.connect(_env.root, f) end
 
   be execute(query: String,
              handler: RecordCB val,
@@ -97,7 +96,8 @@ actor Session
     let f = recover {(c: Connection)(query, params, handler) =>
         c.execute(query, handler, params)
     } end
-    try _mgr.connect(_env.root as AmbientAuth, consume f) end
+    _mgr.connect(_env.root, consume f)
+//    try _mgr.connect(_env.root, consume f) end
 
   be terminate()=>
     _mgr.terminate()

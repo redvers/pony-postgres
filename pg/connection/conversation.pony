@@ -54,7 +54,7 @@ actor AuthConversation is Conversation
     )
     // Debug(recover val ToHexString(MD5(pass+username)) + String.from_array(salt') end)
     // Debug(result)
-    _conn.writev(recover val PasswordMessage(result).done() end)
+    _conn.writev(recover val PasswordMessage(consume result).done() end)
 
   be send_md5_pass(pass: String, req: MD5PwdRequest val) =>
     Debug.out(pass)

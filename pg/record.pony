@@ -10,8 +10,8 @@ class Record
     _tuple = t
 
   fun apply(idx: ( USize | String )): PGValue ? =>
-    (let pos: USize, let d: FieldDescription val) = _desc(idx)
-    Decode(d.type_oid, _tuple(pos).data, d.format)
+    (let pos: USize, let d: FieldDescription val) = _desc(idx)?
+    Decode(d.type_oid, _tuple(pos)?.data, d.format)?
     // if false then error else I32(1) end
 
 interface RecordCB

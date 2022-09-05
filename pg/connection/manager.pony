@@ -61,6 +61,6 @@ actor ConnectionManager
 
   be terminate() =>
     for i in Range(0, _connections.size()) do
-      try _connections.pop().terminate() end
+      try _connections.pop()?.terminate() end
     end
 

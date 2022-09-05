@@ -1,0 +1,12 @@
+{
+  "locks": [
+    {
+      "locator": "github.com/ponylang/crypto.git",
+      "revision": "1.1.6"
+    },
+    {
+      "locator": "github.com/ponylang/logger.git",
+      "revision": "1.0.1"
+    }
+  ]
+}

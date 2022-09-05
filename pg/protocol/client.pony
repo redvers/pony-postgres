@@ -6,7 +6,7 @@ use "pg"
 
 type _Param is (String, String)
 
-interface ClientMessage is Message
+trait ClientMessage is Message
   fun ref _w(): Writer
   fun ref _output(): Writer
   fun ref done(): Array[ByteSeq] iso^ => _done(0)
@@ -18,7 +18,7 @@ interface ClientMessage is Message
   fun ref _i16(i: I16) => _w().i16_be(i)
   fun ref _parameter(p: PGValue) => 
     var param = recover ref Writer end
-    try EncodeBinary(p, param) end
+    try EncodeBinary(p, param)? end
     _i32(param.size().i32())
     _w().writev(param.done())
 
