@@ -241,7 +241,8 @@ class PGNotify is TCPConnectionNotify
       let result: ServerMessage val = match msg_type // auth message type
       | 0 => AuthenticationOkMessage
       | 3 => ClearTextPwdRequest
-      | 5 => MD5PwdRequest(recover val [r.u8()?; r.u8()?; r.u8()?; r.u8()?] end)
+      | 5 => let no = r.u32_be()?
+             MD5PwdRequest(recover val correct_salt_endianness(no) end)
       else 
         PGParseError("Unknown auth message")
       end
@@ -249,6 +250,19 @@ class PGNotify is TCPConnectionNotify
     else
       PGParseError("Unreachable")
     end
+
+  fun correct_salt_endianness(u32: U32, arr: Array[U8] iso = recover Array[U8](4) end): Array[U8] iso^ =>
+    let l1: U8 = (u32 and 0xFF).u8()
+    let l2: U8 = ((u32 >> 8) and 0xFF).u8()
+    let l3: U8 = ((u32 >> 16) and 0xFF).u8()
+    let l4: U8 = ((u32 >> 24) and 0xFF).u8()
+    arr.push(l4)
+    arr.push(l3)
+    arr.push(l2)
+    arr.push(l1)
+    consume arr
+
+
 
   fun ref parse_err_resp(): ServerMessage val =>
     // TODO: This is ugly. it used to work with other
