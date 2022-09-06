@@ -265,7 +265,7 @@ actor ExecuteConversation is Conversation
 
   be message(m: ServerMessage val)=>
     match m
-    | let r: NoData val => Debug.out("NoData response") ; call_back() ; _close()
+    | let r: NoData val => Debug.out("NoData response") ; _execute()
     | let r: ParseCompleteMessage val => _bind()
     | let r: CloseCompleteMessage val => _sync()
     | let r: BindCompleteMessage val => _describe()
