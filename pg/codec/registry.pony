@@ -21,29 +21,14 @@ primitive TypeOid
         oid;
 
   """
-  // TODO: Find NULL oid, i'm pretty sure it's not 0
-  fun apply(ptype: (None|Bool|U8|I64|I16|I32|String|F32|F64)): I32 =>
-    match ptype
-    | let x: None => 0
-    | let x: Bool => 16
-    | let x: U8 => 18
-    | let x: I64 => 20
-    | let x: I16 => 21
-    | let x: I32 => 23
-    | let x: String => 25
-    | let x: F32 => 700
-    | let x: F64 => 701
-    end
-//  fun apply(t: None): I32 => 0
-//  fun apply(t: Bool val): I32 => 16
-//  fun apply(t: U8 val): I32 => 18
-//  fun apply(t: I64 val): I32 => 20
-//  fun apply(t: I16 val): I32 => 21
-//  fun apply(t: I32 val): I32 => 23
-//  fun apply(t: String val): I32 => 25
-//  fun apply(t: F32 val): I32 => 700
-//  fun apply(t: F64 val): I32 => 701
-  /*fun apply(t: Any val): I32 => 0*/
+  /*
+   * 0 Refers to sending a parameter using the more portable text interface
+   *
+   * Leaving this infrastructure in place, just in case in the future we have
+   * a parameter format we are COMPELLED to use binary encoding for
+   *
+   */
+  fun apply(ptype: (None|Bool|U8|I64|I16|I32|String|F32|F64)): I32 => 0
 
 primitive TypeOids
   fun apply(t: Array[PGValue] val): Array[I32] val =>
@@ -51,7 +36,6 @@ primitive TypeOids
       let result = Array[I32](t.size())
       for item in t.values() do
         result.push(TypeOid(item))
-//        try result.push(TypeOid(item)) end
       end
       result
     end
@@ -102,6 +86,11 @@ primitive EncodeBinary
     | let x: I32 => writer.i32_be(x)
     | let x: PGValue => error
     end
-//  fun apply(param: I32, writer: Writer) ? =>
-//    writer.i32_be(param)
-//  fun apply(param: PGValue, writer: Writer) ? => error
+
+primitive EncodeText
+  fun apply(param: PGValue, writer: Writer) =>
+    let str: String val = recover val param.string() end
+    let len: I32 = str.size().i32()
+    writer.i32_be(len)
+    writer.write(str)
+

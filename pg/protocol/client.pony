@@ -16,10 +16,9 @@ trait ClientMessage is Message
   fun ref _write(s: String) => _w().write(s)
   fun ref _i32(i: I32) => _w().i32_be(i)
   fun ref _i16(i: I16) => _w().i16_be(i)
-  fun ref _parameter(p: PGValue) => 
+  fun ref _parameter(p: PGValue) =>
     var param = recover ref Writer end
-    try EncodeBinary(p, param)? end
-    _i32(param.size().i32())
+    EncodeText(p, param)
     _w().writev(param.done())
 
   fun ref _debug(id: U8): Array[ByteSeq] iso^ =>
@@ -83,7 +82,7 @@ class FlushMessage is ClientMessage
   fun ref _output(): Writer => _out
   fun ref _w(): Writer => _temp
 
-  fun ref done(): Array[ByteSeq] iso^ => _done('H') 
+  fun ref done(): Array[ByteSeq] iso^ => _done('H')
 
 class SyncMessage is ClientMessage
   var _temp: Writer = Writer
@@ -91,7 +90,7 @@ class SyncMessage is ClientMessage
   fun ref _output(): Writer => _out
   fun ref _w(): Writer => _temp
 
-  fun ref done(): Array[ByteSeq] iso^ => _done('S') 
+  fun ref done(): Array[ByteSeq] iso^ => _done('S')
 
 class TerminateMessage is ClientMessage
   var _temp: Writer = Writer
@@ -99,7 +98,7 @@ class TerminateMessage is ClientMessage
   fun ref _output(): Writer => _out
   fun ref _w(): Writer => _temp
 
-  fun ref done(): Array[ByteSeq] iso^ => _done('X') 
+  fun ref done(): Array[ByteSeq] iso^ => _done('X')
 
 class PasswordMessage is ClientMessage
   var _temp: Writer = Writer
@@ -108,7 +107,7 @@ class PasswordMessage is ClientMessage
   fun ref _w(): Writer => _temp
 
   new create(pass: String) => _write(pass) ; _zero()
-  fun ref done(): Array[ByteSeq] iso^ => _done('p') 
+  fun ref done(): Array[ByteSeq] iso^ => _done('p')
 
 class QueryMessage is ClientMessage
   var _temp: Writer = Writer
@@ -117,7 +116,7 @@ class QueryMessage is ClientMessage
   fun ref _w(): Writer => _temp
 
   new create(q: String) => _write(q)
-  fun ref done(): Array[ByteSeq] iso^ =>_zero(); _done('Q') 
+  fun ref done(): Array[ByteSeq] iso^ =>_zero(); _done('Q')
 
 class DescribeMessage is ClientMessage
   var _temp: Writer = Writer
@@ -130,7 +129,7 @@ class DescribeMessage is ClientMessage
     _write(name)
     _zero()
 
-  fun ref done(): Array[ByteSeq] iso^ => _done('D') 
+  fun ref done(): Array[ByteSeq] iso^ => _done('D')
 
 class CloseMessage is ClientMessage
   var _temp: Writer = Writer
@@ -143,7 +142,7 @@ class CloseMessage is ClientMessage
     _write(name)
     _zero()
 
-  fun ref done(): Array[ByteSeq] iso^ => _done('C') 
+  fun ref done(): Array[ByteSeq] iso^ => _done('C')
 
 class ParseMessage is ClientMessage
   var _temp: Writer = Writer
@@ -161,7 +160,7 @@ class ParseMessage is ClientMessage
       _i32(oid)
     end
 
-  fun ref done(): Array[ByteSeq] iso^ => _done('P') 
+  fun ref done(): Array[ByteSeq] iso^ => _done('P')
 
 class BindMessage is ClientMessage
   var _temp: Writer = Writer
@@ -174,8 +173,8 @@ class BindMessage is ClientMessage
     _zero()
     _write(query)
     _zero()
-    _i16(1)
-    _i16(1)
+    _i16(0)
+//    _i16(1)
     _i16(params.size().i16())
     for p in params.values() do
       _parameter(p)
@@ -183,17 +182,17 @@ class BindMessage is ClientMessage
     _i16(1)
     _i16(0)
 
-  fun ref done(): Array[ByteSeq] iso^ => _done('B') 
+  fun ref done(): Array[ByteSeq] iso^ => _done('B')
 
 class ExecuteMessage is ClientMessage
   var _temp: Writer = Writer
   var _out: Writer = Writer
   fun ref _output(): Writer => _out
   fun ref _w(): Writer => _temp
- 
-  new create(portal: String, rows: USize) => 
+
+  new create(portal: String, rows: USize) =>
     _write(portal)
     _zero()
     _i32(rows.i32())
 
-  fun ref done(): Array[ByteSeq] iso^ => _done('E') 
+  fun ref done(): Array[ByteSeq] iso^ => _done('E')
