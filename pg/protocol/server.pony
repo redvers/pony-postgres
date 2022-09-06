@@ -20,6 +20,8 @@ class ClearTextPwdRequest is ServerMessage
   fun string(): String => "ClearTextPwdRequest"
 class EmptyQueryResponse is ServerMessage
   fun string(): String => "Empty query"
+class NoData is ServerMessage
+  fun string(): String => "NoData"
 class ParseCompleteMessage is ServerMessage
   fun string(): String => "Parse complete"
 class BindCompleteMessage is ServerMessage

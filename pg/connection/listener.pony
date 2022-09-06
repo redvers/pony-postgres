@@ -27,7 +27,7 @@ class PGNotify is TCPConnectionNotify
   var _rows: Array[DataRowMessage val] trn = recover trn Array[DataRowMessage val] end
 
   fun ref connect_failed(conn: TCPConnection ref) => None
-    
+
   fun ref connected(conn: TCPConnection ref) =>
     _conn.connected()
 
@@ -52,7 +52,7 @@ class PGNotify is TCPConnectionNotify
     // don't use  while r.size() <= _clen do, because the
     // continue is unconditionnal.
     while true do
-      //Debug.out("connection buffer size: " + r.size().string()) 
+      //Debug.out("connection buffer size: " + r.size().string())
       match parse_response()
       | let result: PGParseError val => Debug.out(result.msg);_conn.log(result.msg)
       | let result: ParsePending val => return true
@@ -127,6 +127,7 @@ class PGNotify is TCPConnectionNotify
     | 'D' => parse_data_row()
     | 'E' => parse_err_resp()
     | 'I' => EmptyQueryResponse
+    | 'n' => NoData
     | 'K' => parse_backend_key_data()
     | 'R' => parse_auth_resp()
     | 'S' => parse_parameter_status()
@@ -243,7 +244,7 @@ class PGNotify is TCPConnectionNotify
       | 3 => ClearTextPwdRequest
       | 5 => let no = r.u32_be()?
              MD5PwdRequest(recover val correct_salt_endianness(no) end)
-      else 
+      else
         PGParseError("Unknown auth message")
       end
       result
@@ -266,7 +267,7 @@ class PGNotify is TCPConnectionNotify
 
   fun ref parse_err_resp(): ServerMessage val =>
     // TODO: This is ugly. it used to work with other
-    // capabilities, so I adapted to get a val fields. It copies 
+    // capabilities, so I adapted to get a val fields. It copies
     // all, it should not.
     let it = recover val
       let items = Array[(U8, Array[U8] val)]
@@ -290,7 +291,7 @@ class PGNotify is TCPConnectionNotify
             start_pos = pos + 1
             typ = 0
           end
-        else 
+        else
           if typ == 0 then typ = c end
         end
         c = try iter.next()? else if typ == 0 then break else 0 end end
@@ -300,4 +301,4 @@ class PGNotify is TCPConnectionNotify
     end
     ErrorMessage(it)
 
-    
+
