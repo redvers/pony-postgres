@@ -16,7 +16,7 @@ interface _StringCB
 interface PassCB is _StringCB
 interface UserCB is _StringCB
 
-type PGValue is (I64 | I32 | None)
+type PGValue is (I64 | I32 | String | None)
 
 type Param is (String, String)
 
