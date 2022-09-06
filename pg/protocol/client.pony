@@ -181,7 +181,7 @@ class BindMessage is ClientMessage
       _parameter(p)
     end
     _i16(1)
-    _i16(1)
+    _i16(0)
 
   fun ref done(): Array[ByteSeq] iso^ => _done('B') 
 

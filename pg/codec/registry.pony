@@ -2,6 +2,7 @@ use "buffered"
 use "debug"
 
 use "pg"
+use "pg/codec/types"
 
 primitive TypeOid
   """
@@ -72,21 +73,24 @@ primitive DecodeText
     | 23 => String.from_array(value).i32()?
     //| 23 => I32(1)
     else
-      Debug.out("Unknown type OID: " + type_oid.string()); error
+      Debug.out("warn: [DecodeText] Don't know how to return native ponytype for : " + type_oid.string())
+      String.from_array(value)
     end
 
 primitive DecodeBinary
   fun apply(type_oid: I32, value: Array[U8] val): PGValue ? =>
     match type_oid
-    | 23 => 
-      var result = I32(0)
-      for i in value.values() do
-        result = (result << 8) + i.i32()
-      end
-      result
+    | 20 => Int8.binary(value)
+    | 23 => Int4.binary(value)
+//      Debug.out("Length of array: " + value.size().string())
+//      var result = I32(0)
+//      for i in value.values() do
+//        result = (result << 8) + i.i32()
+//      end
+//      result
       // I32(1)
     else
-      Debug.out("Unknown type OID: " + type_oid.string()); error
+      Debug.out("[DecodeBinary] Unknown type OID: " + type_oid.string()); error
     end
     
 
