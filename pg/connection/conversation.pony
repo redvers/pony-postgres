@@ -8,8 +8,8 @@ use "pg/introspect"
 use "pg"
 
 trait Conversation
-  
-  be apply(c: BEConnection tag) 
+
+  be apply(c: BEConnection tag)
   be message(m: ServerMessage val)
 
 
@@ -37,7 +37,7 @@ actor AuthConversation is Conversation
   be apply(c: BEConnection tag) =>
     let data = recover val
     let msg = StartupMessage(_params)
-    msg.done() 
+    msg.done()
     end
     c.writev(data)
 
@@ -92,7 +92,7 @@ actor Fetcher
 
   be stop() =>
     _notify.stop()
-    
+
 
 
 actor FetchConversation is Conversation
@@ -117,13 +117,13 @@ actor FetchConversation is Conversation
 
   be _batch(b: BatchRowMessage val) =>
     Debug.out(query)
-    try 
+    try
       for m in b.rows.values() do
         let record = recover val Record(_tuple_desc as TupleDescription val, m.fields) end
         _buffer.push(record)
         if (_buffer.size() == _size) and (_size > 0) then
           _do_send()
-        end 
+        end
       end
     else
       Debug.out("can't create and push record")
@@ -147,7 +147,7 @@ actor FetchConversation is Conversation
     let b = _buffer = recover trn Array[Record val] end
     let that = recover tag this end
     fetcher(consume val b, recover val
-      {(fn: (FetchNotify iso | None)=None) (that) => 
+      {(fn: (FetchNotify iso | None)=None) (that) =>
         fetcher.set_notifier(consume fn)
         that._next()}
     end)
@@ -265,6 +265,7 @@ actor ExecuteConversation is Conversation
 
   be message(m: ServerMessage val)=>
     match m
+    | let r: NoData val => Debug.out("NoData response") ; call_back() ; _close()
     | let r: ParseCompleteMessage val => _bind()
     | let r: CloseCompleteMessage val => _sync()
     | let r: BindCompleteMessage val => _describe()

@@ -1,7 +1,7 @@
 use "net"
 use "collections"
 use "debug"
-use "logger" 
+use "logger"
 
 use "pg/introspect"
 use "pg/protocol"
@@ -34,7 +34,7 @@ actor _Connection is BEConnection
   var _backend_key: (U32, U32) = (0, 0)
   let out: OutStream
   let logger: Logger[String val] val
-  
+
   new create(auth: AmbientAuth,
              host: String,
              service: String,
@@ -92,7 +92,7 @@ actor _Connection is BEConnection
   be _set_backend_key(m: BackendKeyDataMessage val) =>
     _backend_key = m.data
 
-  be log(msg: String) => 
+  be log(msg: String) =>
     Debug.out(msg)
     _pool.log(msg)
 
