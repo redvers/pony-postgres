@@ -70,29 +70,31 @@ primitive Decode
 primitive DecodeText
   fun apply(type_oid: I32, value: Array[U8] val): PGValue ? =>
     match type_oid
-    | 23 => String.from_array(value).i32()?
-    //| 23 => I32(1)
+    | 16 => if (value.apply(0)? == 't') then true else false end
+    | 20 => String.from_array(value).i64()? // int8
+    | 21 => String.from_array(value).i16()? // int2
+    | 23 => String.from_array(value).i32()? // int4
+    | 25 => String.from_array(value)        // text
+    | 869 => String.from_array(value)       // host
+    | 650 => String.from_array(value)       // cidr
+    | 1043 => String.from_array(value)      // varchar
     else
       Debug.out("warn: [DecodeText] Don't know how to return native ponytype for : " + type_oid.string())
       String.from_array(value)
     end
 
+/* We probably should not be taking this approach given that the postgres
+ * docs explicitly say that binary formats are not considered portable
+ * across versions                                                        */
 primitive DecodeBinary
   fun apply(type_oid: I32, value: Array[U8] val): PGValue ? =>
     match type_oid
     | 20 => Int8.binary(value)
     | 23 => Int4.binary(value)
-//      Debug.out("Length of array: " + value.size().string())
-//      var result = I32(0)
-//      for i in value.values() do
-//        result = (result << 8) + i.i32()
-//      end
-//      result
-      // I32(1)
     else
       Debug.out("[DecodeBinary] Unknown type OID: " + type_oid.string()); error
     end
-    
+
 
 primitive EncodeBinary
   fun apply(param: (I32|PGValue), writer: Writer) ? =>

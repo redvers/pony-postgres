@@ -16,7 +16,7 @@ interface _StringCB
 interface PassCB is _StringCB
 interface UserCB is _StringCB
 
-type PGValue is (I64 | I32 | String | None)
+type PGValue is (I64 | I32 | I16 | String | Bool | None)
 
 type Param is (String, String)
 
@@ -80,7 +80,7 @@ actor Session
       | let s: String => RawPasswordProvider(s)
       end
 
-    _mgr = ConnectionManager(host', service', user', provider, 
+    _mgr = ConnectionManager(host', service', user', provider,
       recover val [("user", user'); ("database", database')] end, env.out)
 
   be log(msg: String) =>
