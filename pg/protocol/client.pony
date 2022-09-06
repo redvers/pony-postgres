@@ -67,6 +67,7 @@ class StartupMessage is ClientMessage
   new create(params: Array[_Param] box) =>
     _i32(196608) // protocol version 3.0
     for (key, value) in params.values() do
+      Debug.out("StartupMessage: " + key + " => " + value)
       add_param(key, value)
     end
 
@@ -106,7 +107,7 @@ class PasswordMessage is ClientMessage
   fun ref _output(): Writer => _out
   fun ref _w(): Writer => _temp
 
-  new create(pass: String) => _write(pass)
+  new create(pass: String) => _write(pass) ; _zero()
   fun ref done(): Array[ByteSeq] iso^ => _done('p') 
 
 class QueryMessage is ClientMessage

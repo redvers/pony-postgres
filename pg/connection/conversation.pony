@@ -45,19 +45,14 @@ actor AuthConversation is Conversation
     _conn.writev(recover val PasswordMessage(pass).done() end)
 
   be _send_md5_pass(pass: String, username: String, salt: Array[U8] val) =>
-    // TODO: Make it work. doesn't work at the moment
-    // from PG doc : concat('md5', md5(concat(md5(concat(password, username)), random-salt)))
     var result = "md5" + ToHexString(
       MD5(
         ToHexString(MD5(pass+username)) + String.from_array(salt)
       )
     )
-    // Debug(recover val ToHexString(MD5(pass+username)) + String.from_array(salt') end)
-    // Debug(result)
     _conn.writev(recover val PasswordMessage(consume result).done() end)
 
   be send_md5_pass(pass: String, req: MD5PwdRequest val) =>
-    Debug.out(pass)
     let that = recover tag this end
     _pool.get_user(recover {(u: String)(that, pass, req) => that._send_md5_pass(pass, u, req.salt)} end)
 
