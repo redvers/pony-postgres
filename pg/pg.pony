@@ -20,6 +20,7 @@ type PGValue is (I64 | I32 | I16 | String | Bool | None)
 
 type Param is (String, String)
 
+type WrappedCBQuery is (String, RecordCB val, (Array[PGValue] val | None))
 actor Session
   let _env: Env
   let _mgr: ConnectionManager
@@ -95,6 +96,15 @@ actor Session
              params: (Array[PGValue] val | None) = None) =>
     let f = recover {(c: Connection)(query, params, handler) =>
         c.execute(query, handler, params)
+    } end
+    _mgr.connect(_env.root, consume f)
+
+
+
+//type WrappedCBQuery is (String, RecordCB val, (Array[PGValue] val | None))
+  be execute_batch(data: Array[WrappedCBQuery val] val) =>
+    let f = recover {(c: Connection)(data) =>
+        c.execute_batch(data)
     } end
     _mgr.connect(_env.root, consume f)
 //    try _mgr.connect(_env.root, consume f) end
